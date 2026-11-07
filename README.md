@@ -21,7 +21,19 @@ npm run test:smoke -- http://localhost:5173
 npm run check
 ```
 
-`npm run check` 验证测试平台自身，不连接业务应用。报告输出到 `reports/`。
+`npm run check` 验证测试平台自身，不连接业务应用；推送和 PR 会自动运行这组检查。每次执行的报告独立保存在 `reports/runs/`，不会覆盖其他项目或历史结果。`npm run report` 打开最近完成的一次运行。
+
+## 多个项目
+
+```bash
+cp qualityharbor.example.json qualityharbor.config.json
+# 修改配置里的项目名称、URL 与 profile
+npm test -- --list-targets
+npm test -- --target=hireflow-local
+npm test -- --target=website-local
+```
+
+配置只保存地址和测试范围，不保存密码或写入授权；本地配置默认不提交。也可用 `--config=./my-projects.json` 指定文件。直接传 URL 的方式仍然有效。
 
 ## 目录
 

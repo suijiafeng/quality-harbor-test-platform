@@ -6,8 +6,9 @@
 qualityharbor-test-platform/
 ├── .github/workflows/       CI 工作流
 ├── src/
-│   ├── cli/run.mjs          URL 命令行入口与 Playwright 调度
-│   ├── core/               地址校验、网络和写入安全策略
+│   ├── cli/                URL/项目命令行入口、运行调度与报告查看
+│   ├── core/               配置校验、网络策略、运行摘要和报告路径
+│   ├── reporters/          简洁运行摘要 reporter
 │   └── fixtures/test.ts     与业务无关的安全 Playwright fixtures
 ├── projects/
 │   ├── generic/tests/ui/    通用页面冒烟
@@ -28,6 +29,7 @@ qualityharbor-test-platform/
 │   └── roadmap.md          后续计划
 ├── playwright.config.ts    Playwright 标准配置入口
 ├── tsconfig.json           TypeScript 检查范围
+├── qualityharbor.example.json 多项目配置示例
 ├── package.json            安装及运行命令
 └── reports/                本地生成报告，不提交
 ```
@@ -62,6 +64,6 @@ npm run typecheck
 npm run check
 ```
 
-`check` 汇总以上三项，不需要业务服务、测试账号或浏览器安装。集成测试只创建临时本地 HTTP 服务，CLI 用 `--list` 验证配置和用例发现。`npm run test:safety` 保留为原有安全回归命令。
+`check` 汇总以上三项，不需要业务服务、测试账号或浏览器安装。集成测试只创建临时本地 HTTP 服务，CLI 验证配置、用例发现、运行隔离、失败/跳过/中断和并发结果。真实执行在临时平台副本与本地 HTTP fixture 上进行，不影响用户的历史报告。`npm run test:safety` 保留为原有安全回归命令。
 
 业务测试命令不变。`npm run test:api` 和 `npm run test:ui` 选择 HireFlow 对应分组；`npm run test:smoke` 保持原有基础用例范围。完整用法见 [运行指南](../guides/running-tests.md)。

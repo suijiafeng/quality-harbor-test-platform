@@ -13,7 +13,7 @@
     "test:ui": "node src/cli/run.mjs --project=hireflow-chromium",
     "test:safety": "node --test tests/unit/*.test.mjs tests/integration/api-guard.test.mjs",
     "typecheck": "tsc --noEmit",
-    "report": "playwright show-report reports/html",
+    "report": "node src/cli/report.mjs",
     "check": "npm run test:unit && npm run test:integration && npm run typecheck",
     "test:smoke": "node src/cli/run.mjs --smoke",
     "test:unit": "node --test tests/unit/*.test.mjs",

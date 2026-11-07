@@ -49,6 +49,48 @@ npm run check
 
 `npm run check` 只验证测试项目自身的安全规则与 TypeScript，不代表被测应用通过。
 
+## 保存多个项目
+
+将根目录 `qualityharbor.example.json` 复制为 `qualityharbor.config.json`，修改项目地址：
+
+```json
+{
+  "version": 1,
+  "defaultProject": "web-local",
+  "projects": {
+    "web-local": {
+      "name": "本地站点",
+      "url": "http://localhost:3000",
+      "profile": "generic",
+      "suite": "smoke"
+    },
+    "hireflow-local": {
+      "name": "HireFlow",
+      "url": "http://localhost:5173",
+      "profile": "hireflow",
+      "suite": "all"
+    }
+  }
+}
+```
+
+```bash
+npm test -- --list-targets
+npm test -- --target=web-local
+npm test -- --target=hireflow-local --project=hireflow-api
+npm test -- --config=./qualityharbor.config.json
+npm test -- http://localhost:8080 --target=web-local --profile=generic
+```
+
+- `--target` 选择配置中的项目，`--project` 仍是 Playwright 用例分组，两者不同。
+- `--target` 默认读取测试仓库根目录的 `qualityharbor.config.json`；显式 `--config` 路径相对于调用命令时的工作目录。指定配置但未指定项目时使用 `defaultProject`，未设置默认值则报错，不猜测目标。
+- URL 优先级为命令行 URL > 所选项目 URL > `TARGET_URL`。`--profile` 覆盖项目设置；未配置时为 `auto`。直接 URL、未传配置选项时，不会自动加载本地配置。
+- `suite` 为 `all` 或 `smoke`，默认 `all`；`--smoke` 可缩小范围。smoke 已有固定筛选，不能叠加 `--grep`，但可使用 `--project` 或测试文件筛选。需要自定义 `--grep` 时使用 all 范围。
+- 项目 ID 只允许小写字母、数字、连字符和下划线，长度 1–64。配置严格拒绝未知字段、账号密码、写入开关和含认证信息的 URL。账号仍从私有环境变量注入，配置不能启用业务写入。
+- `--list-targets` 只列配置，不访问目标；`--list` 不执行用例、不生成运行记录，但 `auto` 仍请求一次 `/api/health` 来识别适配器。要完全离线发现用例，请显式指定 `--profile=generic` 或 `--profile=hireflow`。
+
+本地默认配置被 Git 忽略；其他命名的配置文件需自行确认是否适合提交。不要使用配置保存任何凭据。此版本每条命令测试一个项目，可顺序执行或并发启动不同命令。
+
 ## 可选：已登录的只读检查
 
 只给 URL 可以检查公开页面、登录入口、未登录拦截等。要进入登录后的业务页面，需要专用测试账号。不要使用个人账号或生产管理员账号。
@@ -93,14 +135,28 @@ npm test -- http://localhost:5173 --profile=hireflow --allow-writes
 
 当前不覆盖真实 AI、文件上传/S3、真实邮件、完整面试排期、Offer 审批、电子签署、入职闭环、多角色行级数据范围、压力测试和像素级视觉比较。AI 在本次本地验证中使用被测项目自带 mock 模式。
 
-## 输出
+## 输出与运行摘要
 
-- `reports/html/index.html`：Playwright HTML 报告，运行 `npm run report` 查看。
-- `reports/junit.xml`：CI 可读取的结果。
-- `reports/results.json`：结构化结果。
-- `reports/artifacts/`：失败截图等诊断材料。
+每次真实执行创建 `reports/runs/<项目 ID>/<运行 ID>/`；直接输入 URL 时项目 ID 为 `direct`。重复执行、失败或并发运行不会覆盖旧目录。
 
-报告可能包含页面数据和 URL，只分享给有权查看的人。所有测试禁用 trace，以减少认证信息录制；但 Playwright 失败上下文仍可能包含表单值，分享报告前必须检查，不要使用个人或生产账号。
+- `run.json`：项目、规范化 URL、适配器、范围、写入开关、开始时间、Node/Playwright 版本。不会保存账号环境变量或任意命令行参数。
+- `summary.json`：整体状态、通过/失败/跳过/flaky/未执行数量，以及用例分组、名称、相对文件位置、结果和耗时。`selection.filtered=true` 表示使用过额外 Playwright 参数，复现筛选时需保留原命令。
+- `html/index.html`、`junit.xml`、`results.json`：Playwright 原生报告。
+- `artifacts/`：失败截图等诊断材料。
+- `reports/latest.json`：最近完成运行的指针；并发时按完成顺序更新，只替换指针、不替换旧报告。
+
+```bash
+npm run report
+npm run report -- reports/runs/hireflow-local/<运行ID>
+```
+
+默认打开最近完成的 HTML 报告；也可传旧运行目录。启动错误可能没有 HTML，此时查看该次 `summary.json`，不会静默打开更早的成功报告。旧版 `reports/html` 在没有新运行指针时仍可查看。
+
+整体状态使用 Playwright 的 `passed` / `failed` / `timedout` / `interrupted`；进程未产出完整摘要时记录 `runner-error`，不会误报为通过。无结果、被前置失败阻断的用例计入 `notRun`，有意跳过计入 `skipped`；预期失败与重试成功按 Playwright 的 expected/flaky 规则保留。`globalErrorCount` 只记录运行器级错误数量，不把所有失败自动归因为业务缺陷。没有用例执行或存在跳过，不能视为全部业务验收通过。
+
+保留 `--project`、测试文件、`--grep`（all 范围）、`--retries` 等筛选/执行选项。为保持报告与安全策略，入口不接受替换 Playwright 配置的 `-c`/`--tsconfig`、组合短参数、自定义 `--reporter`/`--output`、trace 或交互 UI 覆盖。新目录没有上次失败缓存，因此暂不支持 `--last-failed`；请根据摘要中的文件/用例定位后筛选重跑。`--list` 允许选择列表 reporter。
+
+报告可能包含页面数据和 URL，只分享给有权查看的人。所有测试禁用 trace，以减少认证信息录制；但原生 Playwright 失败上下文仍可能包含表单值，分享报告前必须检查，不要使用个人或生产账号。摘要不复制错误正文、控制台输出、附件或环境变量，但不是原生报告的脱敏替代品。历史报告保留本地，当前不自动删除。
 
 ## 保守网络边界
 

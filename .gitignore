@@ -10,3 +10,5 @@ test-results/
 # Generated evidence may contain test data, form values and local paths.
 /validation/
 *.zip
+# Local project addresses; use the example as a template.
+/qualityharbor.config.json

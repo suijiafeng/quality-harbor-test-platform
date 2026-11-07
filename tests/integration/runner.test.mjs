@@ -29,7 +29,8 @@ async function run(args, options = {}) {
   });
 }
 
-// --list only loads configuration and fixtures; no application is contacted.
+// With an explicit profile, --list only loads configuration and fixtures.
+// Auto profile discovery still probes /api/health, as tested below.
 for (const [label, flags, count] of [
   ['generic', ['--profile=generic'], 3],
   ['HireFlow', ['--profile=hireflow'], 33],

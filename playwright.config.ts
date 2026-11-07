@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 import { validateBaseURL, assertWriteTarget } from './src/core/target.mjs';
 
@@ -7,6 +8,7 @@ if (process.env.HF_ALLOW_WRITES === '1') {
 }
 
 const profile = process.env.TEST_PROFILE ?? 'hireflow';
+const reportDir = process.env.QH_RUN_DIR || 'reports';
 const chromium = {
   ...devices['Desktop Chrome'],
   launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
@@ -22,12 +24,13 @@ export default defineConfig({
   retries: 0,
   timeout: 30_000,
   expect: { timeout: 10_000 },
-  outputDir: 'reports/artifacts',
+  outputDir: join(reportDir, 'artifacts'),
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'reports/html', open: 'never' }],
-    ['junit', { outputFile: 'reports/junit.xml' }],
-    ['json', { outputFile: 'reports/results.json' }],
+    ['./src/reporters/run-summary.ts'],
+    ['html', { outputFolder: join(reportDir, 'html'), open: 'never' }],
+    ['junit', { outputFile: join(reportDir, 'junit.xml') }],
+    ['json', { outputFile: join(reportDir, 'results.json') }],
   ],
   use: {
     baseURL,

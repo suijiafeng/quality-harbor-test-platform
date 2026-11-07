@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "defaultProject": "hireflow-local",
+  "projects": {
+    "hireflow-local": {
+      "name": "HireFlow 本地测试",
+      "url": "http://localhost:5173",
+      "profile": "hireflow",
+      "suite": "all"
+    },
+    "website-local": {
+      "name": "另一个本地应用",
+      "url": "http://localhost:3000",
+      "profile": "generic",
+      "suite": "smoke"
+    }
+  }
+}
