@@ -11,7 +11,7 @@
     "test": "node src/cli/run.mjs",
     "test:api": "node src/cli/run.mjs --project=hireflow-api",
     "test:ui": "node src/cli/run.mjs --project=hireflow-chromium",
-    "test:safety": "node --test tests/unit/*.test.mjs tests/integration/api-guard.test.mjs",
+    "test:safety": "node --test tests/unit/*.test.mjs tests/integration/api-guard.test.mjs tests/integration/role-session.test.mjs",
     "typecheck": "tsc --noEmit",
     "report": "node src/cli/report.mjs",
     "check": "npm run test:unit && npm run test:integration && npm run typecheck",

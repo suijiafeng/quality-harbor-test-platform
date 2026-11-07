@@ -12,7 +12,7 @@ const target = 'http://127.0.0.1:9';
 
 async function run(args, options = {}) {
   const env = { ...process.env };
-  for (const key of ['TARGET_URL', 'TEST_PROFILE', 'HF_EMAIL', 'HF_PASSWORD', 'HF_ALLOW_WRITES', 'HF_TEST_ENV']) {
+  for (const key of [...Object.keys(env).filter(key => key.startsWith('HF_')), 'TARGET_URL', 'TEST_PROFILE']) {
     delete env[key];
   }
   return new Promise((resolve, reject) => {
@@ -33,12 +33,12 @@ async function run(args, options = {}) {
 // Auto profile discovery still probes /api/health, as tested below.
 for (const [label, flags, count] of [
   ['generic', ['--profile=generic'], 3],
-  ['HireFlow', ['--profile=hireflow'], 33],
-  ['API', ['--profile=hireflow', '--project=hireflow-api'], 16],
-  ['UI', ['--profile=hireflow', '--project=hireflow-chromium'], 14],
+  ['HireFlow', ['--profile=hireflow'], 53],
+  ['API', ['--profile=hireflow', '--project=hireflow-api'], 31],
+  ['UI', ['--profile=hireflow', '--project=hireflow-chromium'], 19],
   ['smoke', ['--profile=hireflow', '--smoke'], 23],
 ]) {
-  test(`runner discovers the unchanged ${label} suite`, async () => {
+  test(`runner discovers the configured ${label} suite`, async () => {
     const result = await run([target, ...flags, '--list', '--reporter=list']);
     assert.equal(result.code, 0, result.output);
     assert.match(result.output, new RegExp(`Total: ${count} tests? in`));
@@ -76,7 +76,7 @@ for (const [label, args, expected] of [
 }
 
 for (const [label, body, profile, count] of [
-  ['HireFlow health', { service: 'hireflow-api', status: 'ok' }, 'hireflow', 33],
+  ['HireFlow health', { service: 'hireflow-api', status: 'ok' }, 'hireflow', 53],
   ['unrecognized health', { status: 'ok' }, 'generic', 3],
 ]) {
   test(`runner detects ${label} using only a local test server`, async () => {

@@ -37,7 +37,7 @@ async function fixture(fn) {
 }
 function run(root, args, envOverrides = {}, onChild = () => {}) {
   const env = { ...process.env };
-  for (const key of ['TARGET_URL', 'TEST_PROFILE', 'HF_EMAIL', 'HF_PASSWORD', 'HF_ALLOW_WRITES', 'HF_TEST_ENV', 'QH_RUN_DIR']) delete env[key];
+  for (const key of [...Object.keys(env).filter(key => key.startsWith('HF_')), 'TARGET_URL', 'TEST_PROFILE', 'QH_RUN_DIR']) delete env[key];
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [join(root, 'src/cli/run.mjs'), ...args], { cwd: tmpdir(), env: { ...env, ...envOverrides }, stdio: ['ignore', 'pipe', 'pipe'] });
     onChild(child);
@@ -82,9 +82,9 @@ test('success, repeat, failure and skipped checks retain independent reports and
   assert.equal(success.code, 0, success.output);
   const first = await result(root, success.output);
   assert.equal(first.summary.status, 'passed');
-  assert.equal(first.summary.counts.total, 16);
+  assert.equal(first.summary.counts.total, 31);
   assert.equal(first.summary.counts.passed, 9);
-  assert.equal(first.summary.counts.skipped, 7);
+  assert.equal(first.summary.counts.skipped, 22);
   assert.equal(first.metadata.project.id, 'alpha');
   assert.equal(first.metadata.allowWrites, false);
   assert.equal(first.metadata.selection.filtered, true);

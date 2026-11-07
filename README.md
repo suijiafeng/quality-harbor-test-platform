@@ -54,6 +54,7 @@ docs/       使用、安全、架构和验收文档
 
 ## 文档
 
+- [多角色与面试回归](docs/guides/role-workflows.md)
 - [执行测试与覆盖范围](docs/guides/running-tests.md)
 - [目录与扩展约定](docs/development/structure.md)
 - [安全边界](docs/guides/security.md)
