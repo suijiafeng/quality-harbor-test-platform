@@ -1,0 +1,12 @@
+node_modules/
+.cache/
+.runtime/
+reports/
+test-results/
+.env
+.env.*
+!.env.example
+*.log
+# Generated evidence may contain test data, form values and local paths.
+/validation/
+*.zip

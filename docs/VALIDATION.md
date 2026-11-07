@@ -1,0 +1,57 @@
+# v0.1 真实运行验收
+
+验证日期：2026-11-07。
+
+## 目标和环境
+
+- 被测项目：<https://github.com/suijiafeng/hireflow-recruitment-platform>
+- 被测版本：`0aeba52061cebd8a974d9fafb9d37497819ee33c`。
+- 测试方式：先取得该代码的独立本地副本，构建原有共享包/API，使用原迁移和原 seed 初始化一次性 PGlite 数据库，再启动原 API 与 Vite；最后将运行 URL 交给独立 QualityHarbor 项目。
+- 测试 URL：`http://127.0.0.1:5173`，API 经原 Vite 代理访问。
+- Node.js：24.22.1；Playwright Test：1.56.1；Chromium Headless Shell：141.0.7390.37。
+- 数据：项目自带演示种子与本次随机 QA 测试数据。AI 使用被测项目自带 mock；S3 未连接，不验证文件上传。
+
+临时启动步骤仅用于本次验收，不属于 QualityHarbor 的产品运行逻辑。交付的测试项目不会拉取、启动或修改业务项目。
+
+## 最终结果
+
+| 验证层 | 结果 | 耗时 |
+| --- | --- | --- |
+| 工具自身安全回归 | 16 通过，0 失败 | 小于 1 秒 |
+| TypeScript 类型检查 | 通过 | 未单独计时 |
+| 基础冒烟（不传账号，不启用写入） | **23 通过，0 失败，0 跳过** | 19.4 秒 |
+| 完整回归（测试管理员、显式隔离本地写入） | **32 通过，1 失败，0 跳过** | 43.1 秒 |
+
+完整回归的 16 条 API 测试全部通过。浏览器测试共 17 条，其中 16 条通过，1 条业务回归失败。
+
+基础命令：
+
+```bash
+npm run test:smoke -- http://127.0.0.1:5173
+```
+
+完整回归命令（提前通过私有环境变量设置专用管理员 HF_EMAIL/HF_PASSWORD 和 HF_TEST_ENV=disposable）：
+
+```bash
+npm test -- http://127.0.0.1:5173 --allow-writes
+```
+
+完整回归正确返回退出码 1；基础冒烟返回 0。没有为了“全绿”把已确认问题改为通过、跳过或启用重试。
+
+## 唯一业务失败
+
+U08：退出登录后使用浏览器 Back，地址停留在 `/jobs` 且页面空白。独立无请求拦截的 Playwright 也复现；token 已清空，未观察到受保护数据泄露。详见 [KNOWN_ISSUES.md](KNOWN_ISSUES.md)。
+
+## 测试实现修正
+
+实跑中修正了 Ant Design 可访问名称中的图标/空格匹配、未保存表单的确认步骤和测试收尾的请求处理。这些修正限于 QualityHarbor，未修改业务页面或接口。
+
+系统完整 Chromium 的无头模式曾受当前环境进程通信限制影响；使用 Playwright 官方专用 Headless Shell 后，真实浏览器运行完成。没有更改系统安全设置。
+
+## 范围和证据
+
+- HireFlow 的 `git status --porcelain` 为空，`git diff --exit-code` 通过：业务源码与现有测试均未改动。
+- 未访问生产数据，未在 HireFlow 远程仓库创建提交。
+- 机器可读报告在本次交付包的 `validation/final-*.json` 与 `validation/final-*.xml`；它们不纳入 Git 历史。
+- `validation/final-smoke-report.html` 为基础冒烟的可打开报告，不含完整回归失败截图。原始运行产生的截图不作为本次交付文件。
+- 这些是已列明场景的结果，不代表 HireFlow 全部功能或所有项目均已验证。下一步重点是测试平台配置、用例分层与第二个项目适配，而非先补齐 HireFlow 所有业务场景。

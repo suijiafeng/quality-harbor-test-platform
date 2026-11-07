@@ -1,0 +1,25 @@
+{
+  "name": "qualityharbor-test-platform",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "QualityHarbor Test Platform: independent URL-driven Playwright API and browser regression tests",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node scripts/run.mjs",
+    "test:api": "node scripts/run.mjs --project=hireflow-api",
+    "test:ui": "node scripts/run.mjs --project=hireflow-chromium",
+    "test:safety": "node --test tests/safety.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "report": "playwright show-report reports/html",
+    "check": "npm run test:safety && npm run typecheck",
+    "test:smoke": "node scripts/run.mjs --smoke"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "24.0.0",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,39 @@
+name: URL regression checks
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'An authorized test application root URL reachable from this runner'
+        required: true
+        type: string
+      profile:
+        description: 'Use hireflow for a known HireFlow target; generic is only smoke coverage'
+        type: choice
+        default: hireflow
+        options: [hireflow, generic, auto]
+permissions:
+  contents: read
+jobs:
+  read-only-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npx playwright install --with-deps chromium --only-shell
+      - name: Test the supplied running application
+        env:
+          TARGET_URL: ${{ inputs.target_url }}
+          TARGET_PROFILE: ${{ inputs.profile }}
+        run: npm test -- "$TARGET_URL" "--profile=$TARGET_PROFILE"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: url-test-reports
+          path: reports/
+          retention-days: 7
