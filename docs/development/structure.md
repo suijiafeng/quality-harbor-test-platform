@@ -3,7 +3,7 @@
 ## 目录职责
 
 ```text
-qualityharbor-test-platform/
+quality-harbor-test-platform/
 ├── .github/workflows/       CI 工作流
 ├── src/
 │   ├── cli/                URL/项目命令行入口、运行调度与报告查看

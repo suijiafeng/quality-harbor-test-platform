@@ -7,6 +7,8 @@
 需要 Node.js 22.18+（推荐 24）。
 
 ```bash
+git clone https://github.com/suijiafeng/quality-harbor-test-platform.git
+cd quality-harbor-test-platform
 npm ci
 npx playwright install chromium --only-shell
 npm test -- http://localhost:5173
