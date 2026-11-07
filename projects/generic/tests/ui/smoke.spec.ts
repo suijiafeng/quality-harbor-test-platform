@@ -1,4 +1,4 @@
-import { test, expect } from '../hireflow/support/fixtures.js';
+import { test, expect } from '../../../../src/fixtures/test.js';
 // Observe only the supplied entry URL. No blind form submissions or crawler clicks.
 test('G01 entry page returns a successful document', async ({ page }) => {
   const response = await page.goto('/');

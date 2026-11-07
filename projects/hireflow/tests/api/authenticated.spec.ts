@@ -1,4 +1,4 @@
-import { test, expect, hasCredentials, credentials, login } from '../support/fixtures.js';
+import { test, expect, hasCredentials, credentials, login } from '../../fixtures/test.js';
 test.describe('authenticated read-only checks', () => {
   test.skip(!hasCredentials, 'Set HF_EMAIL and HF_PASSWORD for a dedicated test account.');
   test('A04 login and current profile identify the same user', async ({ request, admin }) => {

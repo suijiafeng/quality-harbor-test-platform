@@ -1,4 +1,4 @@
-import { test, expect } from '../support/fixtures.js';
+import { test, expect } from '../../fixtures/test.js';
 test('A01 API health contract', async ({ request }) => {
   const response = await request.get('/api/health');
   expect(response.status()).toBe(200);

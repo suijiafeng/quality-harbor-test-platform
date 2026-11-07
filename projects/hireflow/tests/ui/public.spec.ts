@@ -1,4 +1,4 @@
-import { test, expect } from '../support/fixtures.js';
+import { test, expect } from '../../fixtures/test.js';
 test('U01 login form exposes usable email and password fields', async ({ page }) => {
   await page.goto('/login');
   await expect(page.getByRole('textbox', { name: /^邮箱/ })).toBeVisible();

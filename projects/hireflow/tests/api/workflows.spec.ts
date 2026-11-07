@@ -1,4 +1,4 @@
-import { test, expect, writesEnabled, unique } from '../support/fixtures.js';
+import { test, expect, writesEnabled, unique } from '../../fixtures/test.js';
 
 test.describe('explicitly enabled disposable-local workflows', () => {
   test.skip(!writesEnabled, 'Writes are off. Requires --allow-writes, HF_TEST_ENV=disposable and a loopback URL.');

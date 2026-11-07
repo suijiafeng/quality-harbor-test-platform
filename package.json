@@ -8,14 +8,16 @@
     "node": ">=22.18"
   },
   "scripts": {
-    "test": "node scripts/run.mjs",
-    "test:api": "node scripts/run.mjs --project=hireflow-api",
-    "test:ui": "node scripts/run.mjs --project=hireflow-chromium",
-    "test:safety": "node --test tests/safety.test.mjs",
+    "test": "node src/cli/run.mjs",
+    "test:api": "node src/cli/run.mjs --project=hireflow-api",
+    "test:ui": "node src/cli/run.mjs --project=hireflow-chromium",
+    "test:safety": "node --test tests/unit/*.test.mjs tests/integration/api-guard.test.mjs",
     "typecheck": "tsc --noEmit",
     "report": "playwright show-report reports/html",
-    "check": "npm run test:safety && npm run typecheck",
-    "test:smoke": "node scripts/run.mjs --smoke"
+    "check": "npm run test:unit && npm run test:integration && npm run typecheck",
+    "test:smoke": "node src/cli/run.mjs --smoke",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:integration": "node --test tests/integration/*.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",

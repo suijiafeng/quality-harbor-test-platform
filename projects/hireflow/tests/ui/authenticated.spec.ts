@@ -1,4 +1,4 @@
-import { test, expect, hasCredentials, loginUI } from '../support/fixtures.js';
+import { test, expect, hasCredentials, loginUI } from '../../fixtures/test.js';
 test.describe('authenticated browser checks', () => {
   test.skip(!hasCredentials, 'Set HF_EMAIL and HF_PASSWORD for an administrator test account.');
   test('U06 login returns to requested page and survives reload', async ({ page }) => {

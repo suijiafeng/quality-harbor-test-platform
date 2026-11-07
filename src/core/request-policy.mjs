@@ -1,4 +1,4 @@
-import { assertWriteTarget } from './safety.mjs';
+import { assertWriteTarget } from './target.mjs';
 
 // A narrow network policy, not a guarantee that arbitrary GET endpoints lack side effects.
 export function isRequestAllowed(rawURL, method, baseURL, { authenticated = false, writes = false } = {}) {
